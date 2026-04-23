@@ -22,7 +22,7 @@ Use one of these values: `Not started`, `In progress`, `Done`
 |---|---|---|
 | M1 | Proof of Work Monitor | Done |
 | M2 | Block Header Analyzer | Done |
-| M3 | Difficulty History | Not started |
+| M3 | Difficulty History | Done |
 | M4 | AI Component | Not started |
 
 ## Current Progress
@@ -30,14 +30,14 @@ Use one of these values: `Not started`, `In progress`, `Done`
 Write 3 to 5 short lines about what you have already done.
 
 - Basic first API call done
-- 
+- Something similar to the first API call integrated into blockchain_client.py
 - 
 
 ## Next Step
 
 Write the next small step you will do before the next class.
 
-- First commit? Tecnically I have alredy made 2 commits, the Milestone1 one and the one with this README update. IDK
+- If I understood corectly the asigment, now I will buit the dashboard itself
 
 ## Main Problem or Blocker
 
