@@ -20,30 +20,31 @@ Use one of these values: `Not started`, `In progress`, `Done`
 
 | Module | What it should include | Status |
 |---|---|---|
-| M1 | Proof of Work Monitor | Done |
+| M1 | Proof of Work Monitor | In progress |
 | M2 | Block Header Analyzer | Done |
-| M3 | Difficulty History | Done |
+| M3 | Difficulty History | In progress |
 | M4 | AI Component | Not started |
 
 ## Current Progress
 
 Write 3 to 5 short lines about what you have already done.
 
-- Basic first API call done
-- Something similar to the first API call integrated into blockchain_client.py
-- 
+- I misunderstood the table above last review. I thougt it tracked Milestones, not Modules.
+- Anyway, the first 3 modules are done, aside of having to fix a problem with the API
 
 ## Next Step
 
 Write the next small step you will do before the next class.
 
-- If I understood corectly the asigment, now I will buit the dashboard itself
+- I need to take a look at the API documentation again to fix the problem
+- Module 4 is next
 
 ## Main Problem or Blocker
 
 Write here if you are stuck with something.
 
-- 
+- For both "Time between last N Blocks" and "Difficulty History" I am trying to get blocks in bulk, But I think I am not understanding the API documentation.
+- I may have to take a second look at the proof of work code in the module 2
 
 ## How to Run
 
