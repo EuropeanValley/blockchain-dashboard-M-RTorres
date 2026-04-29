@@ -74,15 +74,15 @@ template-blockchain-dashboard/
 
 ### Kick-off Review
 
-Review time: 2026-04-21 09:20 CEST
-Status: Green
+Review time: 2026-04-29 20:31 CEST
+Status: Amber
 
 Strength:
-- Your repository keeps the expected classroom structure.
+- I can see the dashboard structure integrating the checkpoint modules.
 
 Improve now:
-- The code should connect the API output to theory, especially leading zeros and bits or target.
+- M1 still needs clearer evidence of a working Proof of Work monitor in the dashboard.
 
 Next step:
-- Add two short code comments that explain leading zeros and the meaning of bits or target.
+- Turn M1 into a working dashboard view with live Proof of Work metrics, not just a placeholder.
 <!-- student-repo-auditor:teacher-feedback:end -->
