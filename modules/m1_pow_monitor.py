@@ -43,7 +43,7 @@ def render() -> None:
 
                     # Convert to DataFrame for plotting
                     df = pd.DataFrame(time_data)
-                    st.write(df)
+                    #st.write(df)
 
                     # Plot the distribution
                     fig, ax = plt.subplots()
@@ -51,6 +51,8 @@ def render() -> None:
                     ax.set_title("Time Between Blocks Distribution")
                     ax.set_xlabel("Time Difference (seconds)")
                     ax.set_ylabel("Frequency")
+                    st.write("You should expect a pretty noisy distribution, maybe a bell curve if you asked for a lot of blocks")
+                    st.write("Over time the average time should decrease, with sudden spikes when the difficulty adjustment happens. But that shoulnt be visible with this kind of query")
                     st.pyplot(fig)
                 else:
                     st.warning("No data available for the specified range.")
