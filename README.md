@@ -9,7 +9,7 @@ Update this README every week.
 
 | Field | Value |
 |---|---|
-| Student Name | GermÃ¡n |
+| Student Name | Germán |
 | GitHub Username | MRTorres |
 | Project Title | Blockchain Dashboard |
 | Chosen AI Approach | Predictor, probably |
@@ -29,8 +29,8 @@ Use one of these values: `Not started`, `In progress`, `Done`
 
 Write 3 to 5 short lines about what you have already done.
 
-- I misunderstood the table above last review. I thougt it tracked Milestones, not Modules.
 - Anyway, the first 3 modules are done, aside of a little bug fixing
+- I have implemented auto Update in module1, but it adds a bunch of lag
 
 ## Next Step
 

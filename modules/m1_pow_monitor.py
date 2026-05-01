@@ -4,18 +4,23 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 from api.blockchain_client import get_time_between_blocks, get_block_history
+from streamlit_autorefresh import st_autorefresh
 
-
-
-#THINGS TO FIX: TIME BETWEEN BLOCKS DONT WORK
+# Set the auto-refresh interval (in milliseconds)
+# You can modify the refresh frequency here
+REFRESH_INTERVAL_MS = 60000  # 60 seconds
 
 def render() -> None:
     """Render the M1 panel."""
+    # Auto-refresh the app
+    st_autorefresh(interval=REFRESH_INTERVAL_MS, key="m1_autorefresh")
+
     st.header("M1 - Proof of Work Monitor")
 
     # Current Difficulty and Leading-Zero Threshold
     st.subheader("Current Difficulty and Leading-Zero Threshold")
-    if st.button("Fetch Current Difficulty", key="m1_difficulty"):
+
+    if st.button("Fetch Current Difficulty", key="m1_difficulty") or True:
         with st.spinner("Fetching difficulty data..."):
             try:
                 difficulty_data = get_block_history(time_period="1m")
@@ -33,17 +38,16 @@ def render() -> None:
     st.subheader("Time Between Last N Blocks")
     st.write("Enter the number of blocks and the starting block height to calculate the time differences between blocks.")
     n_blocks = st.number_input("Enter the number of blocks:", min_value=2, max_value=10, value=5)
-    #min_height = st.number_input("Enter the minimum block height:", min_value=0, value=0)
-    if st.button("Fetch Time Between Blocks", key="m1_time_between_blocks"):
+
+    if st.button("Fetch Time Between Blocks", key="m1_time_between_blocks") or True:
         with st.spinner("Fetching block data..."):
             try:
-                time_data = get_time_between_blocks(amount_of_blocks=n_blocks)#(min_height=min_height, max_height=min_height + n_blocks - 1)
+                time_data = get_time_between_blocks(amount_of_blocks=n_blocks)
                 if time_data:
                     st.success("Time differences fetched successfully.")
 
                     # Convert to DataFrame for plotting
                     df = pd.DataFrame(time_data)
-                    #st.write(df)
 
                     # Plot the distribution
                     fig, ax = plt.subplots()
@@ -61,7 +65,7 @@ def render() -> None:
 
     # Estimated Current Network Hash Rate
     st.subheader("Estimated Current Network Hash Rate")
-    if st.button("Fetch Current Network Hash Rate", key="m1_hashrate"):
+    if st.button("Fetch Current Network Hash Rate", key="m1_hashrate") or True:
         with st.spinner("Fetching network hash rate..."):
             try:
                 difficulty_data = get_block_history(time_period="1m")

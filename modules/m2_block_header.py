@@ -2,6 +2,7 @@
 
 import streamlit as st
 import hashlib
+import struct
 
 from api.blockchain_client import get_block, get_latest_block
 
@@ -13,7 +14,7 @@ from api.blockchain_client import get_block, get_latest_block
 def render() -> None:
     """Render the M2 panel."""
     st.header("M2 - Block Header Analyzer")
-    st.write("Use this module to inspect the fields of one block header.")
+    st.write("Use this module to inspect the fields of one block header and verify the Proof of Work step by step.")
 
     # Add a button to fetch the latest block hash
     if st.button("Use latest block hash", key="m2_latest_hash"):
@@ -30,7 +31,7 @@ def render() -> None:
         key="m2_hash",
     )
 
-    if st.button("Look up block", key="m2_lookup") and block_hash:
+    if (st.button("Look up block", key="m2_lookup") or True) and block_hash:
         with st.spinner("Fetching data..."):
             try:
                 block = get_block(block_hash)
@@ -43,54 +44,100 @@ def render() -> None:
     if block:
         st.subheader("Block header fields")
         header_fields = {
-            "Hash": block.get("id"),
-            "Height": block.get("height"),
+            "Version": block.get("version"),
+            "Previous Hash": block.get("previousblockhash"),
+            "Merkle Root": block.get("merkle_root"),
             "Timestamp": block.get("timestamp"),
-            "Nonce": block.get("nonce"),
             "Bits": block.get("bits"),
-            "Merkle root": block.get("merkle_root"),
-            "Previous block": block.get("previousblockhash"),
+            "Nonce": block.get("nonce"),
         }
         for label, value in header_fields.items():
             st.write(f"**{label}:** {value}")
 
         # Add proof-of-work verification button
-        if st.button("Verify Proof of Work", key="m2_verify_pow"):
-            with st.spinner("Verifying proof of work..."):
+        if st.button("Verify Proof of Work", key="m2_verify_pow") or True:
+            with st.spinner("Verifying proof of work step by step..."):
                 try:
-                    # Construct the block header
-                    header = (
-                        block.get("previousblockhash", "") +
-                        block.get("merkle_root", "") +
-                        str(block.get("timestamp", "")) +
-                        str(block.get("bits", "")) +
-                        str(block.get("nonce", ""))
-                    ).encode("utf-8")
+                    # Step 1: Construct the 80-byte block header with correct byte order
+                    version = struct.pack("<I", int(block.get("version")))  # Little-endian
+                    prev_hash = bytes.fromhex(block.get("previousblockhash"))[::-1]  # Reverse byte order
+                    merkle_root = bytes.fromhex(block.get("merkle_root"))[::-1]  # Reverse byte order
+                    timestamp = struct.pack("<I", int(block.get("timestamp")))  # Little-endian
+                    bits = struct.pack("<I", int(block.get("bits")))  # Little-endian
+                    nonce = struct.pack("<I", int(block.get("nonce")))  # Little-endian
 
-                    # Compute double SHA256
+                    header = version + prev_hash + merkle_root + timestamp + bits + nonce
+
+                    # Color-coded legend
+                    st.write("### Step 1: Constructed 80-byte Block Header")
+                    st.markdown(
+                        """
+                        <style>
+                        .legend { display: flex; gap: 10px; margin-bottom: 10px; }
+                        .legend-item { display: flex; align-items: center; gap: 5px; }
+                        .color-box { width: 15px; height: 15px; display: inline-block; }
+                        .version { background-color: #FFDDC1; color: black; }
+                        .prev-hash { background-color: #FFABAB; color: black; }
+                        .merkle-root { background-color: #FFC3A0; color: black; }
+                        .timestamp { background-color: #D5AAFF; color: black; }
+                        .bits { background-color: #85E3FF; color: black; }
+                        .nonce { background-color: #B9FBC0; color: black; }
+                        </style>
+                        <div class="legend">
+                            <div class="legend-item"><span class="color-box version"></span>Version</div>
+                            <div class="legend-item"><span class="color-box prev-hash"></span>Previous Hash</div>
+                            <div class="legend-item"><span class="color-box merkle-root"></span>Merkle Root</div>
+                            <div class="legend-item"><span class="color-box timestamp"></span>Timestamp</div>
+                            <div class="legend-item"><span class="color-box bits"></span>Bits</div>
+                            <div class="legend-item"><span class="color-box nonce"></span>Nonce</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    # Highlighted block header
+                    highlighted_header = (
+                        f"<span class='version'>{version.hex()}</span>"
+                        f"<span class='prev-hash'>{prev_hash.hex()}</span>"
+                        f"<span class='merkle-root'>{merkle_root.hex()}</span>"
+                        f"<span class='timestamp'>{timestamp.hex()}</span>"
+                        f"<span class='bits'>{bits.hex()}</span>"
+                        f"<span class='nonce'>{nonce.hex()}</span>"
+                    )
+                    st.markdown(f"<code>{highlighted_header}</code>", unsafe_allow_html=True)
+
+                    # Step 2: Compute double SHA256
                     hash1 = hashlib.sha256(header).digest()
-                    hash2 = hashlib.sha256(hash1).hexdigest()
-                    
-                    # Decode the 'bits' field into the full target value
-                    try:
-                        bits = int(block.get("bits"))  # Ensure 'bits' is treated as a decimal number
-                        exponent = (bits >> 24) & 0xFF  # Extract the first byte (exponent)
-                        coefficient = bits & 0xFFFFFF  # Extract the last three bytes (coefficient)
-                        target = coefficient * (1 << (8 * (exponent - 3)))  # Compute the full target
-                    except ValueError:
-                        st.error("Invalid 'bits' field: Unable to decode target.")
-                        return
+                    hash2 = hashlib.sha256(hash1).digest()[::-1].hex()  # Reverse byte order for final hash
+                    st.write("### Step 2: Double SHA256 Hash")
+                    st.write(f"Hash 1: {hash1.hex()}")
+                    st.write(f"Hash 2: {hash2}")
 
-                    # Verify if hash is below the target
-                    is_valid = int(hash2, 16) < target
+                    # Step 3: Decode 'bits' field into target
+                    bits_int = int(block.get("bits"))
+                    exponent = (bits_int >> 24) & 0xFF
+                    coefficient = bits_int & 0xFFFFFF
+                    target = coefficient * (1 << (8 * (exponent - 3)))
+                    st.write("### Step 3: Decoded Target")
+                    st.write(f"Target: {target:#x}")
 
-                    # Count leading zero bits
-                    leading_zeros = len(hash2) - len(hash2.lstrip("0")) * 4
+                    # Step 4: Compare hash with target
+                    hash_int = int(hash2, 16)
+                    is_valid = hash_int < target
+                    st.write("### Step 4: Proof of Work Verification")
+                    st.write(f"Hash Int: {hash_int:#x}")
+                    st.write(f"Is Valid Proof of Work: {is_valid}")
 
-                    # Display results
-                    st.write(f"**Computed Hash:** {hash2}")
-                    st.write(f"**Is Valid Proof of Work:** {is_valid}")
-                    st.write(f"**Leading Zero Bits:** {leading_zeros}")
+                    # Step 5: Count leading zero bits
+                    leading_zeros = 0
+                    for byte in bytes.fromhex(hash2):
+                        if byte == 0:
+                            leading_zeros += 8
+                        else:
+                            leading_zeros += bin(byte).count("0") - 1
+                            break
+                    st.write("### Step 5: Leading Zero Bits")
+                    st.write(f"Leading Zero Bits: {leading_zeros}")
 
                 except Exception as exc:
                     st.error(f"Error during proof-of-work verification: {exc}")

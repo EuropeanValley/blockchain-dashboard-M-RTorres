@@ -20,7 +20,7 @@ def render() -> None:
         key="m3_time_period"
     )
 
-    if st.button("Load difficulty and hashrate chart", key="m3_load"):
+    if st.button("Load difficulty and hashrate chart", key="m3_load") or True:
         with st.spinner("Fetching data..."):
             try:
                 # Fetch data for the selected time period
