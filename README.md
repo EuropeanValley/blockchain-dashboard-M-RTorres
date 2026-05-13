@@ -23,21 +23,19 @@ Use one of these values: `Not started`, `In progress`, `Done`
 | M1 | Proof of Work Monitor | Done |
 | M2 | Block Header Analyzer | Done |
 | M3 | Difficulty History | Done |
-| M4 | AI Component | Not started |
+| M4 | AI Component | Done |
 
 ## Current Progress
 
 Write 3 to 5 short lines about what you have already done.
 
-- Anyway, the first 3 modules are done, aside of a little bug fixing
-- I have implemented auto Update in module1, but it adds a bunch of lag
-
+- The four modules are done, althoug I would like to modify the AI Component a little to make it a little more readeble
+- PD: It seems I forgot to push commit when I finished the module 4. Know that it was finished like a week ago. 
 ## Next Step
 
 Write the next small step you will do before the next class.
 
-- I need to do a little bug fixing to module 3 "All" option and to module 2 proof of work
-- Module 4 is next
+- My intention was to add one of the three extra modules now at the last minute, but I just realiced I have to make a report, so I will do that instead.
 
 ## Main Problem or Blocker
 

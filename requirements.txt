@@ -3,3 +3,7 @@ pandas
 plotly
 streamlit
 streamlit_autorefresh
+# Added libraries for AI Predictor
+prophet
+tensorflow
+torch

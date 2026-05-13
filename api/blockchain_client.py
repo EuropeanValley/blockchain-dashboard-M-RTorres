@@ -53,6 +53,7 @@ def get_block_history(time_period: str = "All") -> dict:
     return {
         "hashrates": data.get("hashrates", []),
         "difficulty": data.get("difficulty", []),
+        "height": data.get("height", []),
         "currentHashrate": data.get("currentHashrate"),
         "currentDifficulty": data.get("currentDifficulty"),
     }
