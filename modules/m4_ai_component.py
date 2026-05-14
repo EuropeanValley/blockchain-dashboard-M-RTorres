@@ -4,6 +4,7 @@ import pandas as pd
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error
 import streamlit as st
+from api.blockchain_client import get_block_history
 
 
 def train_predictor(data: pd.DataFrame) -> dict:
@@ -20,8 +21,8 @@ def train_predictor(data: pd.DataFrame) -> dict:
     model = Prophet()
     model.fit(data)
 
-    # Make future predictions
-    future = model.make_future_dataframe(periods=10)  # Predict next 10 adjustments
+    # Make future predictions for one year
+    future = model.make_future_dataframe(periods=365)  # Predict next 365 days
     forecast = model.predict(future)
 
     # Evaluate the model
@@ -42,21 +43,61 @@ def render() -> None:
 
     st.subheader("Predictor: Difficulty Adjustment")
 
-    # Placeholder for data extraction
+    # Allow the user to select a time period
     st.markdown("### Data Extraction")
-    st.info("Use `get_block_history` to extract data.")
+    time_period = st.selectbox(
+        "Select time period",
+        options=["1m", "3m", "6m", "1y", "2y", "3y", "All"],
+        index=0,
+        key="m4_time_period"
+    )
 
-    # Example DataFrame structure
-    example_data = pd.DataFrame({
-        'ds': pd.date_range(start='2022-01-01', periods=100, freq='D'),
-        'y': [i + (i % 5) for i in range(100)]  # Example difficulty values
-    })
+    if st.button("Load and Train Model", key="m4_load"):
+        with st.spinner("Fetching data..."):
+            try:
+                # Fetch data for the selected time period
+                data = get_block_history(time_period)
 
-    # Train the model
-    st.markdown("### Model Training")
-    result = train_predictor(example_data)
-    st.success(f"Model trained successfully! MAE: {result['mae']:.4f}")
+                # Extract relevant data
+                difficulties = data.get("difficulty", [])
 
-    # Display forecast
-    st.markdown("### Forecast")
-    st.line_chart(result['forecast'][['ds', 'yhat']].set_index('ds'))
+                if not difficulties:
+                    st.warning("No data available for the selected time period.")
+                    return
+
+                # Extract relevant data from difficulties
+                timestamps = [entry["time"] for entry in difficulties]
+                difficulty_values = [entry["difficulty"] for entry in difficulties]
+
+                # Create a DataFrame for training
+                df = pd.DataFrame({
+                    "ds": pd.to_datetime(timestamps, unit="s"),
+                    "y": difficulty_values,
+                })
+
+                # Train the model
+                st.markdown("### Model Training")
+                result = train_predictor(df)
+                st.success(f"Model trained successfully! MAE: {result['mae']:.4f}")
+
+                # Display forecast
+                st.markdown("### Forecast")
+                forecast = result['forecast']
+
+                # Separate historical and forecasted data
+                historical = forecast[forecast['ds'] <= df['ds'].max()]
+                future = forecast[forecast['ds'] > df['ds'].max()]
+
+                # Plot historical and forecasted data
+                chart_data = pd.DataFrame({
+                    "ds": pd.concat([historical['ds'], future['ds']]),
+                    "yhat": pd.concat([historical['yhat'], future['yhat']]),
+                    "Type": ["Historical"] * len(historical) + ["Forecast"] * len(future)
+                })
+
+                st.line_chart(
+                    chart_data.pivot(index="ds", columns="Type", values="yhat")
+                )
+
+            except Exception as exc:
+                st.error(f"Error loading data or training model: {exc}")

@@ -1,5 +1,6 @@
 """Starter file for module M1."""
 
+from matplotlib.pylab import log2
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -27,8 +28,8 @@ def render() -> None:
                 current_difficulty = difficulty_data.get("currentDifficulty")
                 if current_difficulty:
                     st.success(f"Current Difficulty: {current_difficulty}")
-                    leading_zero_threshold = 2 ** 256 / current_difficulty
-                    st.success(f"Leading-Zero Threshold: {leading_zero_threshold:.2e}")
+                    leading_zero_threshold = (32 + log2(current_difficulty))/4
+                    st.success(f"Leading-Zero Threshold: {leading_zero_threshold}")
                 else:
                     st.warning("Could not fetch current difficulty.")
             except Exception as exc:
@@ -64,7 +65,7 @@ def render() -> None:
                 st.error(f"Error fetching block data: {exc}")
 
     # Estimated Current Network Hash Rate
-    st.subheader("Estimated Current Network Hash Rate")
+    st.subheader("Current Network Hash Rate")
     if st.button("Fetch Current Network Hash Rate", key="m1_hashrate") or True:
         with st.spinner("Fetching network hash rate..."):
             try:

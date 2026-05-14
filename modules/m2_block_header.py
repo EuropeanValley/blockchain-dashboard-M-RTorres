@@ -107,11 +107,9 @@ def render() -> None:
                     st.markdown(f"<code>{highlighted_header}</code>", unsafe_allow_html=True)
 
                     # Step 2: Compute double SHA256
-                    hash1 = hashlib.sha256(header).digest()
                     hash2 = hashlib.sha256(hash1).digest()[::-1].hex()  # Reverse byte order for final hash
-                    st.write("### Step 2: Double SHA256 Hash")
-                    st.write(f"Hash 1: {hash1.hex()}")
-                    st.write(f"Hash 2: {hash2}")
+                    st.write("### Step 2: SHA256 Hash")
+                    st.write(f"Hash : {hash2}")
 
                     # Step 3: Decode 'bits' field into target
                     bits_int = int(block.get("bits"))
@@ -127,17 +125,6 @@ def render() -> None:
                     st.write("### Step 4: Proof of Work Verification")
                     st.write(f"Hash Int: {hash_int:#x}")
                     st.write(f"Is Valid Proof of Work: {is_valid}")
-
-                    # Step 5: Count leading zero bits
-                    leading_zeros = 0
-                    for byte in bytes.fromhex(hash2):
-                        if byte == 0:
-                            leading_zeros += 8
-                        else:
-                            leading_zeros += bin(byte).count("0") - 1
-                            break
-                    st.write("### Step 5: Leading Zero Bits")
-                    st.write(f"Leading Zero Bits: {leading_zeros}")
 
                 except Exception as exc:
                     st.error(f"Error during proof-of-work verification: {exc}")

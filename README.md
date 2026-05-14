@@ -29,13 +29,12 @@ Use one of these values: `Not started`, `In progress`, `Done`
 
 Write 3 to 5 short lines about what you have already done.
 
-- The four modules are done, althoug I would like to modify the AI Component a little to make it a little more readeble
-- PD: It seems I forgot to push commit when I finished the module 4. Know that it was finished like a week ago. 
+- I have done all four modules plus the report. Sadly I didn't organize my time good enough to make any extra modules
 ## Next Step
 
 Write the next small step you will do before the next class.
 
-- My intention was to add one of the three extra modules now at the last minute, but I just realiced I have to make a report, so I will do that instead.
+- This is supposed to be the last commit, there is no next step
 
 ## Main Problem or Blocker
 
